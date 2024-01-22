@@ -6,16 +6,16 @@ from tkinter import messagebox
 class NotaApp:
     def __init__(self, master):
         self.master = master
-        self.master.title("Notepad")  # Set the title of the application
+        self.master.title("Notepad")
 
         # Configure Open Sans font for the Text widget
         self.text_font = ("Helvetica", 10)  # Adjust according to your preferences
 
         # Add padding around the text box
         self.text = tk.Text(master, wrap="word", font=self.text_font, padx=10, pady=10)
-        self.text.pack(expand=True, fill="both")  # Pack the Text widget
+        self.text.pack(expand=True, fill="both")
 
-        self.modified = False  # Variable to track modifications
+        self.modified = False
 
         # Menu bar
         menubar = tk.Menu(master)
@@ -31,6 +31,18 @@ class NotaApp:
         menu_file.add_separator()
         menu_file.add_command(label="Exit", command=self.exit_app)
 
+        # View menu
+        menu_view = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="View", menu=menu_view)
+
+        # App Theme submenu
+        menu_theme = tk.Menu(menu_view, tearoff=0)
+        menu_view.add_cascade(label="App Theme", menu=menu_theme)
+        self.theme_var = tk.StringVar()  # Initialize theme variable
+        self.theme_var.set("light")  # Default theme is light
+        menu_theme.add_radiobutton(label="Light", variable=self.theme_var, value="light", command=self.set_light_theme)
+        menu_theme.add_radiobutton(label="Dark", variable=self.theme_var, value="dark", command=self.set_dark_theme)
+
         # Associate the exit function with the window close button
         master.protocol("WM_DELETE_WINDOW", self.exit_app)
 
@@ -38,13 +50,13 @@ class NotaApp:
         master.bind("<Control-s>", self.save_shortcut)
 
         # Update the window title based on modifications
-        master.title("Notepad" + (" *" if self.modified else ""))
+        self.update_title()
 
         # Associate a function to track changes in the text
         self.text.bind("<Key>", self.text_modified)
 
     def new_note(self):
-        self.text.delete("1.0", tk.END)  # Delete existing text
+        self.text.delete("1.0", tk.END)
         self.modified = False
         self.update_title()
 
@@ -98,13 +110,25 @@ class NotaApp:
 
     def update_title(self):
         # Update the window title based on modifications
-        self.master.title("Notepad" + (" *" if self.modified else ""))
+        theme = self.theme_var.get().capitalize()
+        self.master.title(f"Notepad ({theme} mode)" + (" *" if self.modified else ""))
+
+    def set_light_theme(self):
+        self.master.configure(bg="white")
+        self.text.configure(bg="white", fg="black", insertbackground="black")  # Set cursor color to black
+
+    def set_dark_theme(self):
+        self.master.configure(bg="black")
+        self.text.configure(bg="black", fg="white", insertbackground="white")  # Set cursor color to white
 
 if __name__ == "__main__":
     root = tk.Tk()
 
     app = NotaApp(root)
     root.mainloop()
+
+
+
 
 
 
